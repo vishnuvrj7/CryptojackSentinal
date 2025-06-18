@@ -1,0 +1,116 @@
+/* Modern UI Enhancements */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    color: #1e293b;
+    perspective: 1200px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Enhanced Card Container */
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    height: 45vh;
+    max-height: 450px;
+    margin: 0 auto 32px auto;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+    padding: 32px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transform: rotateX(1deg) rotateY(-1deg);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.chart-container:hover {
+    transform: rotateX(0deg) rotateY(0deg) translateY(-4px);
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);
+}
+
+/* Improved Card Design */
+.bg-white {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    transition: all 0.3s ease;
+}
+
+.bg-white:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Enhanced Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.5);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #64748b, #475569);
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #475569, #334155);
+}
+
+/* Modern Alert Styling */
+#alert-list .alert-item {
+    border-left: 4px solid;
+    padding: 1rem;
+    margin: 0.75rem 0;
+    transition: all 0.2s ease;
+    border-radius: 0 12px 12px 0;
+}
+
+#alert-list .alert-item:hover {
+    transform: translateX(4px);
+}
+
+/* Process List Enhancement */
+#process-list .process-item {
+    padding: 1rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+#process-list .process-item:hover {
+    background-color: rgba(241, 245, 249, 0.8);
+    transform: translateX(4px);
+}
+
+/* Status Indicator Enhancement */
+#status-indicator {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Button Enhancement */
+.download-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px -1px rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+

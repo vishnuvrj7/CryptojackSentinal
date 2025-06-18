@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptojack Sentinel - Live Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A single-page dashboard layout is used for immediate situational awareness. The structure is hierarchical: 1. Top-level status cards for instant real-time metrics (CPU, Memory, Network). 2. A large, main chart for historical trend analysis, allowing users to investigate patterns over time. 3. Two columns at the bottom for detailed context: 'Top Processes' to identify potential culprits, and 'Alert Log' for a history of detected anomalies. This flow guides the user from a high-level overview down to specific, actionable details, which is the most effective way to present monitoring data and directly translates the report's goals into a functional UI. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Real-time CPU/Mem/Network stats. Goal: Inform at a glance. Viz: Large text numbers and a mini line chart in a card. Interaction: None, auto-updates. Justification: Provides immediate, scannable status. Library: Chart.js.
+        - Report Info: Historical resource usage. Goal: Analyze change over time. Viz: Large, interactive line chart. Interaction: Buttons to toggle visibility of CPU, Memory, or Network datasets. Justification: Enables users to focus on specific metrics and identify correlations or long-term trends. Library: Chart.js.
+        - Report Info: Top resource consumers. Goal: Identify sources of activity. Viz: Dynamically sorted HTML list/table. Interaction: None, auto-updates. Justification: A simple list is the clearest way to show which processes are active, directly aiding in diagnostics. Method: HTML + JS.
+        - Report Info: Anomaly alerts. Goal: Notify and log events. Viz: A scrolling feed of alert messages. Interaction: None, auto-updates. Justification: Provides a clear, chronological record of security-relevant events. Method: HTML + JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-6 lg:p-8">
+
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 bg-white p-6 rounded-2xl shadow-lg border border-slate-200/80">
+            <div class="flex items-center space-x-4">
+                <!-- Shield Logo Unicode Character -->
+                <span class="text-4xl text-blue-600 shadow-md rounded-full p-1 bg-blue-50 mt-0.5" role="img" aria-label="Shield">&#x1F6E1;&#xFE0F;</span>
+                <div>
+                    <h1 class="text-4xl font-extrabold text-slate-900 leading-tight">Cryptojack Sentinel</h1>
+                    <p class="text-slate-500 mt-2 text-lg">Your vigilant real-time system resource monitor.</p>
+                </div>
+            </div>
+            <div id="status-indicator" class="flex items-center space-x-2 mt-4 sm:mt-0 px-4 py-2 bg-red-100 text-red-800 rounded-full text-md font-semibold transition-colors duration-300 ease-in-out shadow-sm">
+                <span class="relative flex h-3.5 w-3.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500"></span>
+                </span>
+                <span id="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <main class="space-y-10">
+            
+            <section id="live-metrics">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800">Live System Metrics</h2>
+                    <p class="text-slate-500 mt-2 text-lg">An immediate overview of your device's core resource usage. Data is updated every 0.5 second.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-7 rounded-3xl shadow-xl border border-slate-200/80 transition-transform duration-300 hover:scale-[1.01] hover:shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-xl text-slate-700">CPU Usage</h3>
+                            <span class="text-4xl font-extrabold text-cyan-700 drop-shadow-md" id="cpu-usage-text">0%</span>
+                        </div>
+                        <p class="text-sm text-slate-500 mb-4">Current processor load.</p>
+                        <div class="mini-chart-container border-t pt-4 border-slate-100">
+                            <canvas id="cpu-mini-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-7 rounded-3xl shadow-xl border border-slate-200/80 transition-transform duration-300 hover:scale-[1.01] hover:shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-xl text-slate-700">Memory Usage</h3>
+                            <span class="text-4xl font-extrabold text-violet-700 drop-shadow-md" id="mem-usage-text">0%</span>
+                        </div>
+                        <p class="text-sm text-slate-500 mb-4">Current RAM utilization.</p>
+                        <div class="mini-chart-container border-t pt-4 border-slate-100">
+                            <canvas id="mem-mini-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-7 rounded-3xl shadow-xl border border-slate-200/80 transition-transform duration-300 hover:scale-[1.01] hover:shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-xl text-slate-700">Network Activity</h3>
+                            <span class="text-4xl font-extrabold text-amber-700 drop-shadow-md" id="net-usage-text">0 KB/s</span>
+                        </div>
+                        <p class="text-sm text-slate-500 mb-4">Data received per second.</p>
+                        <div class="mini-chart-container border-t pt-4 border-slate-100">
+                            <canvas id="net-mini-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="historical-trends">
+                 <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800">Resource Usage History</h2>
+                    <p class="text-slate-500 mt-2 text-lg">Analyze resource trends over the last few minutes to spot sustained, unusual activity.</p>
+                </div>
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200/80">
+                    <div class="chart-container">
+                        <canvas id="main-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="details">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div id="top-processes">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-slate-800">Top Processes</h2>
+                            <p class="text-slate-500 mt-2 text-lg">Identify which applications are consuming the most CPU resources right now.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200/80 h-auto max-h-[450px] overflow-y-auto">
+                            <div id="process-list" class="space-y-4 p-2">
+                                <div class="text-center text-slate-400 py-16">Loading processes...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="alert-log">
+                        <div class="flex justify-between items-center mb-4 px-2">
+                            <h2 class="text-3xl font-bold text-slate-800">Alert Log</h2>
+                            <a href="/download_alerts" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                <span class="-ml-1 mr-2 text-lg">&#x2B07;&#xFE0F;</span>
+                                Download Logs
+                            </a>
+                        </div>
+                        <p class="text-slate-500 mt-2 text-lg text-center mb-4">A chronological log of all detected anomalies and potential security events.</p>
+                        <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200/80 h-auto max-h-[450px] overflow-y-auto">
+                            <div id="alert-list" class="space-y-4 p-2">
+                                <div class="text-center text-slate-400 py-16">No alerts detected yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center text-slate-500 text-sm mt-16 py-8 border-t border-slate-200/80 bg-white rounded-t-3xl shadow-lg">
+            <div class="flex flex-col items-center justify-center space-y-4">
+                <p>&copy; 2024 Cryptojack Sentinel. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <!-- Social media icons (using Unicode characters for simplicity and no external requests) -->
+                    <a href="https://twitter.com" target="_blank" class="text-slate-600 hover:text-blue-500 transition-colors duration-200 text-2xl" aria-label="Twitter">
+                        &#x1F426; <!-- Bird/Twitter icon -->
+                    </a>
+                    <a href="https://www.linkedin.com" target="_blank" class="text-slate-600 hover:text-blue-700 transition-colors duration-200 text-2xl" aria-label="LinkedIn">
+                        &#x1F517; <!-- Link/Chain icon for LinkedIn -->
+                    </a>
+                    <a href="https://github.com" target="_blank" class="text-slate-600 hover:text-gray-900 transition-colors duration-200 text-2xl" aria-label="GitHub">
+                        &#x1F4BB; <!-- Laptop/GitHub icon -->
+                    </a>
+                    <a href="mailto:contact@cryptojacksentinel.com" class="text-slate-600 hover:text-red-500 transition-colors duration-200 text-2xl" aria-label="Email">
+                        &#x2709;&#xFE0F; <!-- Envelope/Email icon -->
+                    </a>
+                </div>
+                <p class="text-xs text-slate-400 max-w-lg">
+                    Cryptojack Sentinel is designed to provide real-time insights into your system's resource usage, helping you detect and mitigate unauthorized cryptocurrency mining activities.
+                    Your privacy and system performance are our top priorities.
+                </p>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="static/js/script.js"></script>
+
+</body>
+</html>
