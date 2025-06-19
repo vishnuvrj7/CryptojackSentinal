@@ -10,34 +10,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Harmony Neutrals -->
-    <!-- Application Structure Plan: A single-page dashboard layout is used for immediate situational awareness. The structure is hierarchical: 1. Top-level status cards for instant real-time metrics (CPU, Memory, Network). 2. A large, main chart for historical trend analysis, allowing users to investigate patterns over time. 3. Two columns at the bottom for detailed context: 'Top Processes' to identify potential culprits, and 'Alert Log' for a history of detected anomalies. This flow guides the user from a high-level overview down to specific, actionable details, which is the most effective way to present monitoring data and directly translates the report's goals into a functional UI. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Real-time CPU/Mem/Network stats. Goal: Inform at a glance. Viz: Large text numbers and a mini line chart in a card. Interaction: None, auto-updates. Justification: Provides immediate, scannable status. Library: Chart.js.
-        - Report Info: Historical resource usage. Goal: Analyze change over time. Viz: Large, interactive line chart. Interaction: Buttons to toggle visibility of CPU, Memory, or Network datasets. Justification: Enables users to focus on specific metrics and identify correlations or long-term trends. Library: Chart.js.
-        - Report Info: Top resource consumers. Goal: Identify sources of activity. Viz: Dynamically sorted HTML list/table. Interaction: None, auto-updates. Justification: A simple list is the clearest way to show which processes are active, directly aiding in diagnostics. Method: HTML + JS.
-        - Report Info: Anomaly alerts. Goal: Notify and log events. Viz: A scrolling feed of alert messages. Interaction: None, auto-updates. Justification: Provides a clear, chronological record of security-relevant events. Method: HTML + JS.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-indigo-50 text-slate-800">
 
     <div class="container mx-auto p-4 md:p-6 lg:p-8">
 
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 bg-white p-6 rounded-2xl shadow-lg border border-slate-200/80">
-            <div class="flex items-center space-x-4">
+        <header class="header header-sm-row">
+            <div class="logo">
                 <!-- Shield Logo Unicode Character -->
-                <span class="text-4xl text-blue-600 shadow-md rounded-full p-1 bg-blue-50 mt-0.5" role="img" aria-label="Shield">&#x1F6E1;&#xFE0F;</span>
+                <span role="img" aria-label="Shield">&#x1F6E1;&#xFE0F;</span>
                 <div>
-                    <h1 class="text-4xl font-extrabold text-slate-900 leading-tight">Cryptojack Sentinel</h1>
-                    <p class="text-slate-500 mt-2 text-lg">Your vigilant real-time system resource monitor.</p>
+                    <h1>Cryptojack Sentinel</h1>
+                    <p>Your vigilant real-time system resource monitor.</p>
                 </div>
             </div>
-            <div id="status-indicator" class="flex items-center space-x-2 mt-4 sm:mt-0 px-4 py-2 bg-red-100 text-red-800 rounded-full text-md font-semibold transition-colors duration-300 ease-in-out shadow-sm">
-                <span class="relative flex h-3.5 w-3.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500"></span>
+            <div id="status-indicator" class="status-indicator">
+                <span class="ping">
+                    <span class="animate-ping"></span>
+                    <span class="inner"></span>
                 </span>
                 <span id="status-text">Connecting...</span>
             </div>
@@ -45,115 +36,363 @@
 
         <main class="space-y-10">
             
-            <section id="live-metrics">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-slate-800">Live System Metrics</h2>
-                    <p class="text-slate-500 mt-2 text-lg">An immediate overview of your device's core resource usage. Data is updated every 0.5 second.</p>
+               <!-- Live System Metrics Section -->
+    <section id="live-metrics">
+        <div class="text-center mb-8">
+            <h2>Live System Metrics</h2>
+            <p>An immediate overview of your device's core resource usage. Data is updated every 0.5 second{Depends on your device}.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <!-- CPU Usage -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3>CPU Usage</h3>
+                    <span class="text-cyan-700" id="cpu-usage-text">0%</span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-7 rounded-3xl shadow-xl border border-slate-200/80 transition-transform duration-300 hover:scale-[1.01] hover:shadow-2xl">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-semibold text-xl text-slate-700">CPU Usage</h3>
-                            <span class="text-4xl font-extrabold text-cyan-700 drop-shadow-md" id="cpu-usage-text">0%</span>
-                        </div>
-                        <p class="text-sm text-slate-500 mb-4">Current processor load.</p>
-                        <div class="mini-chart-container border-t pt-4 border-slate-100">
-                            <canvas id="cpu-mini-chart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-7 rounded-3xl shadow-xl border border-slate-200/80 transition-transform duration-300 hover:scale-[1.01] hover:shadow-2xl">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-semibold text-xl text-slate-700">Memory Usage</h3>
-                            <span class="text-4xl font-extrabold text-violet-700 drop-shadow-md" id="mem-usage-text">0%</span>
-                        </div>
-                        <p class="text-sm text-slate-500 mb-4">Current RAM utilization.</p>
-                        <div class="mini-chart-container border-t pt-4 border-slate-100">
-                            <canvas id="mem-mini-chart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-7 rounded-3xl shadow-xl border border-slate-200/80 transition-transform duration-300 hover:scale-[1.01] hover:shadow-2xl">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-semibold text-xl text-slate-700">Network Activity</h3>
-                            <span class="text-4xl font-extrabold text-amber-700 drop-shadow-md" id="net-usage-text">0 KB/s</span>
-                        </div>
-                        <p class="text-sm text-slate-500 mb-4">Data received per second.</p>
-                        <div class="mini-chart-container border-t pt-4 border-slate-100">
-                            <canvas id="net-mini-chart"></canvas>
-                        </div>
-                    </div>
+                <p>Current processor load.</p>
+                <div class="mini-chart-container">
+                    <canvas id="cpu-mini-chart"></canvas>
                 </div>
-            </section>
+            </div>
+            <!-- Memory Usage -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3>Memory Usage</h3>
+                    <span class="text-violet-700" id="mem-usage-text">0%</span>
+                </div>
+                <p>Current RAM utilization.</p>
+                <div class="mini-chart-container">
+                    <canvas id="mem-mini-chart"></canvas>
+                </div>
+            </div>
+            <!-- Network Activity -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3>Network Activity</h3>
+                    <span class="text-amber-700" id="net-usage-text">0 KB/s</span>
+                </div>
+                <p>Data received per second.</p>
+                <div class="mini-chart-container">
+                    <canvas id="net-mini-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <section id="historical-trends">
-                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-slate-800">Resource Usage History</h2>
-                    <p class="text-slate-500 mt-2 text-lg">Analyze resource trends over the last few minutes to spot sustained, unusual activity.</p>
-                </div>
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200/80">
-                    <div class="chart-container">
-                        <canvas id="main-chart"></canvas>
-                    </div>
-                </div>
-            </section>
+    <!-- Resource Usage History Section -->
+    <section id="historical-trends">
+        <div class="text-center mb-8">
+            <h2>Resource Usage History</h2>
+            <p>Analyze resource trends over the last few minutes to spot sustained, unusual activity.</p>
+        </div>
+        <div class="card">
+            <div class="chart-container">
+                <canvas id="main-chart"></canvas>
+            </div>
+        </div>
+    </section>
 
             <section id="details">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div id="top-processes">
-                        <div class="text-center mb-8">
-                            <h2 class="text-3xl font-bold text-slate-800">Top Processes</h2>
-                            <p class="text-slate-500 mt-2 text-lg">Identify which applications are consuming the most CPU resources right now.</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200/80 h-auto max-h-[450px] overflow-y-auto">
-                            <div id="process-list" class="space-y-4 p-2">
-                                <div class="text-center text-slate-400 py-16">Loading processes...</div>
-                            </div>
-                        </div>
+                <!-- Top Processes -->
+                <div id="top-processes" class="card">
+                    <div class="card-title">
+                        <h2>Top Processes</h2>
+                        <p>Identify which applications are consuming the most CPU resources right now.</p>
                     </div>
-                    <div id="alert-log">
-                        <div class="flex justify-between items-center mb-4 px-2">
-                            <h2 class="text-3xl font-bold text-slate-800">Alert Log</h2>
-                            <a href="/download_alerts" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                                <span class="-ml-1 mr-2 text-lg">&#x2B07;&#xFE0F;</span>
-                                Download Logs
-                            </a>
-                        </div>
-                        <p class="text-slate-500 mt-2 text-lg text-center mb-4">A chronological log of all detected anomalies and potential security events.</p>
-                        <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200/80 h-auto max-h-[450px] overflow-y-auto">
-                            <div id="alert-list" class="space-y-4 p-2">
-                                <div class="text-center text-slate-400 py-16">No alerts detected yet.</div>
-                            </div>
-                        </div>
+                    <div id="process-list" class="content">
+                        Loading processes...
+                    </div>
+                </div>
+                <!-- Alert Log -->
+                <div id="alert-log" class="card">
+                    <div class="card-title">
+                        <h2>Alert Log</h2>
+                    </div>
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <a href="/download_alerts" class="download-button">
+                            <span>&#x2B07;&#xFE0F;</span>
+                            Download Logs
+                        </a>
+                    </div>
+                    <p class="text-slate-500 text-lg text-center mb-4">A chronological log of all detected anomalies and potential security events.</p>
+                    <div id="alert-list" class="content">
+                        No alerts detected yet.
                     </div>
                 </div>
             </section>
         </main>
-
-        <footer class="text-center text-slate-500 text-sm mt-16 py-8 border-t border-slate-200/80 bg-white rounded-t-3xl shadow-lg">
-            <div class="flex flex-col items-center justify-center space-y-4">
-                <p>&copy; 2024 Cryptojack Sentinel. All rights reserved.</p>
-                <div class="flex space-x-6">
-                    <!-- Social media icons (using Unicode characters for simplicity and no external requests) -->
-                    <a href="https://twitter.com" target="_blank" class="text-slate-600 hover:text-blue-500 transition-colors duration-200 text-2xl" aria-label="Twitter">
-                        &#x1F426; <!-- Bird/Twitter icon -->
-                    </a>
-                    <a href="https://www.linkedin.com" target="_blank" class="text-slate-600 hover:text-blue-700 transition-colors duration-200 text-2xl" aria-label="LinkedIn">
-                        &#x1F517; <!-- Link/Chain icon for LinkedIn -->
-                    </a>
-                    <a href="https://github.com" target="_blank" class="text-slate-600 hover:text-gray-900 transition-colors duration-200 text-2xl" aria-label="GitHub">
-                        &#x1F4BB; <!-- Laptop/GitHub icon -->
-                    </a>
-                    <a href="mailto:contact@cryptojacksentinel.com" class="text-slate-600 hover:text-red-500 transition-colors duration-200 text-2xl" aria-label="Email">
-                        &#x2709;&#xFE0F; <!-- Envelope/Email icon -->
-                    </a>
+        </div>
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 <span class="brand">Cryptojack Sentinel</span>. All rights reserved.</p>
+                <div class="social-icons">
+                    <a href="https://twitter.com" target="_blank" aria-label="Twitter">&#x1F426;</a>
+                    <a href="https://www.linkedin.com" target="_blank" aria-label="LinkedIn">&#x1F517;</a>
+                    <a href="https://github.com" target="_blank" aria-label="GitHub">&#x1F4BB;</a>
+                    <a href="mailto:contact@cryptojacksentinel.com" aria-label="Email">&#x2709;</a>
                 </div>
-                <p class="text-xs text-slate-400 max-w-lg">
-                    Cryptojack Sentinel is designed to provide real-time insights into your system's resource usage, helping you detect and mitigate unauthorized cryptocurrency mining activities.
-                    Your privacy and system performance are our top priorities.
+                <p class="description">
+                    Monitoring system resources to help detect unauthorized cryptocurrency mining. 
+                    Your privacy and performance are our priorities.
                 </p>
             </div>
         </footer>
+        <style>
+                    /* General Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 2rem;
+        }
 
-    </div>
+        section {
+            margin-top: 2rem;
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        p {
+            margin: 0.5rem 0;
+        }
+
+        /* Section Layout */
+        #details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            #details {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .card-title {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .card-title p {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .content {
+            text-align: center;
+            color: #94a3b8;
+            padding: 4rem 0;
+        }
+
+        /* Button Styles */
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .download-button span {
+            margin-right: 0.5rem;
+        }
+
+                    .header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .header-sm-row {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header .logo span {
+            font-size: 2.5rem;
+            color: #2563eb;
+            background-color: #ebf8ff;
+            padding: 0.5rem;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .header .logo p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #fee2e2;
+            color: #b91c1c;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .status-indicator .ping {
+            position: relative;
+            display: flex;
+            height: 0.875rem;
+            width: 0.875rem;
+        }
+
+        .status-indicator .ping .animate-ping {
+            animation: ping 1s infinite;
+        }
+
+        .status-indicator .ping .animate-ping {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-color: #f87171;
+            border-radius: 50%;
+            opacity: 0.75;
+        }
+
+        .status-indicator .ping .inner {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+
+        @keyframes ping {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .header {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .status-indicator {
+                margin-top: 0;
+            }
+        }
+            /* Footer Styles */
+            .footer {
+                text-align: center;
+                padding: 2rem 1rem;
+                background: linear-gradient(135deg, #ffffff, #f8fafc);
+                border-top: 1px solid rgba(100, 116, 139, 0.2);
+                box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.05);
+                border-radius: 20px 20px 0 0;
+            }
+    
+            .footer-content {
+                max-width: 800px;
+                margin: 0 auto;
+                font-family: 'Inter', sans-serif;
+                color: #64748b;
+            }
+    
+            .footer p {
+                margin: 0.5rem 0;
+                font-size: 0.9rem;
+            }
+    
+            .footer .brand {
+                color: #2563eb;
+                font-weight: 600;
+            }
+    
+            .footer .social-icons {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                margin: 1rem 0;
+            }
+    
+            .footer .social-icons a {
+                font-size: 1.5rem;
+                color: #64748b;
+                transition: transform 0.3s ease, color 0.3s ease;
+            }
+    
+            .footer .social-icons a:hover {
+                color: #2563eb;
+                transform: scale(1.2);
+            }
+    
+            .footer .description {
+                font-size: 0.8rem;
+                color: #94a3b8;
+                line-height: 1.4;
+            }
+    
+            @media (min-width: 768px) {
+                .footer-content {
+                    text-align: center;
+                }
+            }
+        </style>
 
     <script src="static/js/script.js"></script>
 
