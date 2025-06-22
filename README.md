@@ -163,4 +163,4 @@ Ensure your `app.py` is running without errors. Check the browser's developer co
 This means no alerts or metrics have been logged yet. The system needs to experience sustained high CPU usage (above 90% for 10 seconds) to trigger an alert. The "Monitoring session started." message should appear in the log upon client connection.
 
 ## License
-This project is open-source. You can find more details in the LICENSE file (if included).
+This project is open-source. You can find more details in the LICENSE file.
