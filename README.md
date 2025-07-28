@@ -129,22 +129,6 @@ You should now see the Cryptojack Sentinel dashboard displaying real-time system
 - **Alert Log:** This section displays alerts for sustained high CPU usage.
 - **Download Logs:** Click the "Download Logs" button in the Alert Log section to download the `cryptojack_sentinel_log.log` file, which contains all recorded metrics and alerts.
 
-## File Structure
-
-```
-cryptojack_sentinel/
-├── app.py                  # Flask backend, SocketIO server, system monitoring logic, log writing, download endpoint.
-├── requirements.txt        # Lists Python dependencies.
-├── alerts.log              # Persistent log file storing all metrics and alerts.
-├── templates/
-│   └── index.html          # Main HTML dashboard page with UI structure and Chart.js integration.
-└── static/
-    ├── css/
-    │   └── style.css       # Custom CSS for aesthetics and Tailwind directives.
-    └── js/
-        └── script.js       # Frontend JavaScript for WebSocket client, Chart.js updates, and UI interactions.
-```
-
 ## Troubleshooting
 
 ### TypeError: `run_simple() got an unexpected keyword argument 'allow_unsafe_werkzeug':`
