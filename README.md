@@ -162,5 +162,34 @@ Ensure your `app.py` is running without errors. Check the browser's developer co
 ### `alerts.log` only has header:
 This means no alerts or metrics have been logged yet. The system needs to experience sustained high CPU usage (above 90% for 10 seconds) to trigger an alert. The "Monitoring session started." message should appear in the log upon client connection.
 
+## 🔗 Related Projects
+
+Here are other repositories developed by me that focus on detecting and preventing **crypto-jacking** attacks:
+
+### [CryptoPatrol](https://github.com/vishnuvrj7/CryptoPatrol)
+A lightweight **browser-based intrusion detection tool** that monitors real-time web activity to identify unauthorized cryptocurrency mining using a **Chrome extension** and a **Python Flask backend**.
+
+- **Tech Stack**: JavaScript, HTML, Flask, Socket.IO  
+- **Key Features**:
+  - Live browser monitoring
+  - Rule-based detection system
+  - Easy to install and run
+
+---
+
+### [CryptoGuardML](https://github.com/vishnuvrj7/CryptoGuardML)
+A **machine learning-based crypto-jacking detection system** that analyzes system-level performance metrics (CPU, memory, etc.) to identify mining behavior.
+
+- **Tech Stack**: Python, Scikit-learn, Pandas, Matplotlib  
+- **Key Features**:
+  - Dataset analysis
+  - ML model training & evaluation
+  - Early-stage detection of crypto-mining activity
+
+---
+
+> Explore these tools to build a complete defense system against in-browser and system-level crypto-jacking threats.
+
+
 ## License
 This project is open-source. You can find more details in the LICENSE file.
